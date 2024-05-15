@@ -180,7 +180,7 @@ async function run() {
       })
 
           // get all jobs posted by a specific user
-    app.get('/jobs/:email', verifyToken, async (req, res) => {
+        app.get('/jobs/:email', verifyToken, async (req, res) => {
         const tokenEmail = req.user.email
         const email = req.params.email
         if (tokenEmail !== email) {

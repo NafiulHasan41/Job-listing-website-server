@@ -186,7 +186,7 @@ async function run() {
         if (tokenEmail !== email) {
           return res.status(403).send({ message: 'forbidden access' })
         }
-        const query = { 'buyer.email': email }
+        const query = { 'job_owner.email': email }
         const result = await jobsCollection.find(query).toArray()
         res.send(result)
       })

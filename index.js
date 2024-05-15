@@ -14,7 +14,6 @@ const corsOptions = {
       'http://localhost:5174'
     ],
     credentials: true,
-    optionSuccessStatus: 200,
   }
   app.use(cors(corsOptions))
   app.use(express.json())
@@ -30,9 +29,10 @@ const corsOptions = {
           console.log(err)
           return res.status(401).send({ message: 'unauthorized access' })
         }
-        console.log(decoded)
+      
   
         req.user = decoded
+      
         next()
       })
     }
@@ -60,6 +60,8 @@ async function run() {
       // jwt generating
       app.post('/jwt', async (req, res) => {
         const email = req.body
+     
+
         const token = jwt.sign(email, process.env.ACCESS_TOKEN_SECRET, {
           expiresIn: '2h',
         })
@@ -158,7 +160,7 @@ async function run() {
         const alreadyApplied = await applyJobsCollection.findOne(query)
 
         
-         console.log(alreadyApplied);
+         
         if (alreadyApplied) {
           return res
             .status(400)
@@ -166,21 +168,21 @@ async function run() {
         }
   
         const result = await applyJobsCollection.insertOne(applyData)
-         console.log(applyData);
+      
   
         // update job count in jobs collection
         const updateDoc = {
           $inc: { job_applicants_number: 1 },
         }
-        console.log(applyData.applyJobId);
+       
         const jobQuery = { _id: new ObjectId(applyData.applyJobId) }
         const updateBidCount = await jobsCollection.updateOne(jobQuery, updateDoc)
-        console.log(updateBidCount);
+       
         res.send(result)
       })
 
           // user posted job
-        app.get('/jobs/:email', verifyToken, async (req, res) => {
+        app.get('/job/:email', verifyToken, async (req, res) => {
         const tokenEmail = req.user.email
         const email = req.params.email
         if (tokenEmail !== email) {
@@ -188,9 +190,9 @@ async function run() {
         }
         const query = { 'job_owner.email': email }
         const result = await jobsCollection.find(query).toArray()
+       
         res.send(result)
       })
-
 
 
  

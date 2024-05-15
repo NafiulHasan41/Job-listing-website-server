@@ -11,7 +11,8 @@ const app = express()
 const corsOptions = {
     origin: [
       'http://localhost:5173',
-      'http://localhost:5174'
+      'http://localhost:5174',
+      'https://job-listing-site-91a79.web.app'
     ],
     credentials: true,
   }
@@ -61,7 +62,7 @@ async function run() {
       app.post('/jwt', async (req, res) => {
         const email = req.body
      
-
+        console.log("email" , email)
         const token = jwt.sign(email, process.env.ACCESS_TOKEN_SECRET, {
           expiresIn: '2h',
         })
@@ -199,6 +200,31 @@ async function run() {
         const id = req.params.id
         const query = { _id: new ObjectId(id) }
         const result = await jobsCollection.deleteOne(query)
+        res.send(result)
+      })
+
+      // update a job in db
+        app.put('/job/:id', verifyToken, async (req, res) => {
+        const id = req.params.id
+        const jobData = req.body
+        const query = { _id: new ObjectId(id) }
+        const options = { upsert: true }
+        const updateDoc = {
+          $set: {
+            ...jobData,
+          },
+        }
+        const result = await jobsCollection.updateOne(query, updateDoc, options)
+        res.send(result)
+      })
+
+      app.get('/myAppliedJob/:email', verifyToken, async (req, res) => {
+        const email = req.params.email
+        const filter = req.query.filter
+        const query = { 'applicant.email':email }
+        if (filter) query.job_category = filter
+        const result = await applyJobsCollection.find(query).toArray()
+        console.log("result" , result);
         res.send(result)
       })
 
